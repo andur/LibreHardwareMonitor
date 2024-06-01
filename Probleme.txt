@@ -1,0 +1,2 @@
+Integration ist nach Info auf der Projektseite nicht möglich
+https://github.com/LibreHardwareMonitor/LibreHardwareMonitor
