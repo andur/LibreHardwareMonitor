@@ -34,7 +34,10 @@ public enum Model
     X570_Pro4,
     X570_Taichi,
     X570_Phantom_Gaming_ITX,
+    Z690_Extreme,
+    Z690_Steel_Legend,
     Z790_Taichi,
+    H61M_DGS,
 
     // ASUS
     CROSSHAIR_III_FORMULA,
@@ -66,6 +69,7 @@ public enum Model
     ROG_MAXIMUS_Z690_HERO,
     ROG_MAXIMUS_Z690_EXTREME_GLACIAL,
     ROG_STRIX_Z790_I_GAMING_WIFI,
+    ROG_STRIX_Z790_E_GAMING_WIFI,
     M2N_SLI_Deluxe,
     M4A79XTD_EVO,
     P5W_DH_Deluxe,
@@ -89,6 +93,9 @@ public enum Model
     ROG_ZENITH_II_EXTREME,
     TUF_X470_PLUS_GAMING,
     Z170_A,
+    B150M_C,
+    B150M_C_D3,
+    TUF_GAMING_X570_PLUS_WIFI,
     TUF_GAMING_B550M_PLUS_WIFI,
     ROG_MAXIMUS_Z790_HERO,
     PRIME_Z690_A,
@@ -120,6 +127,7 @@ public enum Model
 
     // Gigabyte
     _965P_S3,
+    _970A_DS3P,
     _970A_UD3,
     AB350_Gaming_3,
     AX370_Gaming_5,
