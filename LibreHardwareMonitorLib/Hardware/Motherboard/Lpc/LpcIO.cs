@@ -67,7 +67,7 @@ internal class LpcIO
         {
             var port = new LpcPort(REGISTER_PORTS[i], VALUE_PORTS[i]);
 
-            if (DetectWinbondFintek(port)) continue;
+            if (DetectWinbondFintek(port, motherboard)) continue;
 
             if (DetectIT87(port, motherboard)) continue;
 
@@ -85,7 +85,7 @@ internal class LpcIO
         return null;
     }
 
-    private bool DetectWinbondFintek(LpcPort port)
+    private bool DetectWinbondFintek(LpcPort port, Motherboard motherboard)
     {
         port.WinbondNuvotonFintekEnter();
 
@@ -389,8 +389,30 @@ internal class LpcIO
             case 0xD5:
                 switch (revision)
                 {
-                    case 0x92:
-                        chip = Chip.NCT6687D;
+                    case 0x92:                                
+                        switch (motherboard.Model)
+                        {
+                            case Model.B850_GAMING_PLUS_WIFI:
+                            case Model.B850P_PRO_WIFI:
+                            case Model.B850_TOMAHAWK_MAX_WIFI:
+                            case Model.X870_GAMING_PLUS_WIFI:
+                            case Model.X870_TOMAHAWK_WIFI:
+                            case Model.X870P_PRO_WIFI:
+                            case Model.X870E_TOMAHAWK_WIFI:
+                            case Model.X870E_CARBON_WIFI:
+                            case Model.X870E_EDGE_TI_WIFI:
+                            case Model.X870E_GODLIKE:
+                            case Model.Z890_ACE:
+                            case Model.Z890_CARBON_WIFI:
+                            case Model.Z890_TOMAHAWK_WIFI:
+                            case Model.Z890_EDGE_TI_WIFI:
+                            case Model.Z890P_PRO_WIFI:
+                                chip = Chip.NCT6687DR; // MSI AM5/LGA1851 Compatibility
+                                break;
+                            default:
+                                chip = Chip.NCT6687D;
+                                break;
+                        }
                         logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
                         break;
                 }
@@ -401,6 +423,10 @@ internal class LpcIO
                 {
                     case 0x02:
                         chip = Chip.NCT6799D;
+                        logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+                        break;
+                    case 0x06:
+                        chip = Chip.NCT6701D;
                         logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
                         break;
                 }
@@ -492,7 +518,9 @@ internal class LpcIO
                 case Chip.NCT6799D:
                 case Chip.NCT6686D:
                 case Chip.NCT6687D:
+                case Chip.NCT6687DR:
                 case Chip.NCT6683D:
+                case Chip.NCT6701D:
                     _superIOs.Add(new Nct677X(chip, revision, address, port));
                     break;
 
@@ -544,7 +572,7 @@ internal class LpcIO
             port.IT87Enter();
             chipId = port.ReadWord(CHIP_ID_REGISTER);
         }
-        
+
         Chip chip = chipId switch
         {
             0x8613 => Chip.IT8613E,

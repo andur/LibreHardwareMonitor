@@ -321,25 +321,53 @@ internal sealed class SuperIOHardware : Hardware
                 break;
 
             case Chip.NCT610XD:
-                v.Add(new Voltage("Vcore", 0));
-                v.Add(new Voltage("Voltage #0", 1, true));
-                v.Add(new Voltage("AVCC", 2, 34, 34));
-                v.Add(new Voltage("+3.3V", 3, 34, 34));
-                v.Add(new Voltage("Voltage #1", 4, true));
-                v.Add(new Voltage("Voltage #2", 5, true));
-                v.Add(new Voltage("Reserved", 6, true));
-                v.Add(new Voltage("+3V Standby", 7, 34, 34));
-                v.Add(new Voltage("CMOS Battery", 8, 34, 34));
-                v.Add(new Voltage("Voltage #10", 9, true));
-                t.Add(new Temperature("System", 1));
-                t.Add(new Temperature("CPU Core", 2));
-                t.Add(new Temperature("Auxiliary", 3));
+                switch (manufacturer)
+                {
+                    case Manufacturer.Supermicro when model == Model.X11SWN_E:
+                        v.Add(new Voltage("Vcore", 0));
+                        v.Add(new Voltage("+12V", 1, 94, 10.25f));
+                        v.Add(new Voltage("AVSB", 2, 34, 34));
+                        v.Add(new Voltage("3VCC", 3, 34, 34));
+                        v.Add(new Voltage("+5V", 4, 14, 8.2f));
+                        v.Add(new Voltage("VDIMM", 5));
+                        v.Add(new Voltage("3VSB", 6, 34, 34));
+                        v.Add(new Voltage("VBAT", 7, 34, 34));
+                        t.Add(new Temperature("System", 1));
+                        t.Add(new Temperature("Peripheral", 2));
+                        t.Add(new Temperature("CPU Core", 4));
 
-                for (int i = 0; i < superIO.Fans.Length; i++)
-                    f.Add(new Fan("Fan #" + (i + 1), i));
+                        f.Add(new Fan("Fan #1", 1));
 
-                for (int i = 0; i < superIO.Controls.Length; i++)
-                    c.Add(new Control("Fan #" + (i + 1), i));
+                        c.Add(new Control("Fan #1", 1));
+
+                        break;
+
+                    default:
+                        v.Add(new Voltage("Vcore", 0));
+                        v.Add(new Voltage("Voltage #0", 1, true));
+                        v.Add(new Voltage("AVCC", 2, 34, 34));
+                        v.Add(new Voltage("+3.3V", 3, 34, 34));
+                        v.Add(new Voltage("Voltage #1", 4, true));
+                        v.Add(new Voltage("Voltage #2", 5, true));
+                        v.Add(new Voltage("Reserved", 6, true));
+                        v.Add(new Voltage("+3V Standby", 7, 34, 34));
+                        v.Add(new Voltage("CMOS Battery", 8, 34, 34));
+                        v.Add(new Voltage("Voltage #10", 9, true));
+                        t.Add(new Temperature("CPU Core", 0));
+                        t.Add(new Temperature("Auxiliary", 1));
+                        t.Add(new Temperature("System0", 2));
+                        t.Add(new Temperature("System1", 3));
+                        t.Add(new Temperature("System2", 4));
+                        t.Add(new Temperature("System3", 5));
+
+                        for (int i = 0; i < superIO.Fans.Length; i++)
+                            f.Add(new Fan("Fan #" + (i + 1), i));
+
+                        for (int i = 0; i < superIO.Controls.Length; i++)
+                            c.Add(new Control("Fan #" + (i + 1), i));
+
+                        break;
+                }
 
                 break;
 
@@ -354,6 +382,7 @@ internal sealed class SuperIOHardware : Hardware
             case Chip.NCT6797D:
             case Chip.NCT6798D:
             case Chip.NCT6799D:
+            case Chip.NCT6701D:
             case Chip.NCT6683D:
                 GetNuvotonConfigurationD(superIO, manufacturer, model, superIOIndex, v, t, f, c);
                 break;
@@ -451,9 +480,9 @@ internal sealed class SuperIOHardware : Hardware
                         c.Add(new Control("System Fan #1", 2));
                         c.Add(new Control("System Fan #2", 3));
                         c.Add(new Control("System Fan #3", 4));
-                        
+
                         break;
-                        
+
                     default:
                         v.Add(new Voltage("+12V", 0));
                         v.Add(new Voltage("+5V", 1));
@@ -497,6 +526,142 @@ internal sealed class SuperIOHardware : Hardware
                         c.Add(new Control("System Fan #6", 7));
 
                         break;
+                }
+
+                break;
+
+            case Chip.NCT6687DR:
+
+                // Universal Sensor and Control defaults
+                t.Add(new Temperature("CPU Core", 0));
+                t.Add(new Temperature("System", 1));
+                t.Add(new Temperature("VRM MOS", 2));
+                t.Add(new Temperature("Chipset", 3));
+
+                f.Add(new Fan("CPU Fan", 0));
+                f.Add(new Fan("Pump Fan #1", 1));
+                f.Add(new Fan("System Fan #1", 2));
+                f.Add(new Fan("System Fan #2", 3));
+                f.Add(new Fan("System Fan #3", 4));
+                f.Add(new Fan("System Fan #4", 5));
+                f.Add(new Fan("System Fan #5", 6));
+                f.Add(new Fan("System Fan #6", 7));
+                
+                c.Add(new Control("CPU Fan", 0));
+                c.Add(new Control("Pump Fan", 1));
+                c.Add(new Control("System Fan #1", 2));
+                c.Add(new Control("System Fan #2", 3));
+                c.Add(new Control("System Fan #3", 4));
+                c.Add(new Control("System Fan #4", 5));
+                c.Add(new Control("System Fan #5", 6));
+                c.Add(new Control("System Fan #6", 7));
+
+                switch (model)
+                {
+                    case Model.X870E_TOMAHAWK_WIFI:
+                    case Model.X870E_EDGE_TI_WIFI:
+                        v.Add(new Voltage("+12V", 0));
+                        v.Add(new Voltage("+5V", 1));
+                        v.Add(new Voltage("CPU Northbridge/SoC", 2));
+                        v.Add(new Voltage("DIMM", 3, 1, 1));
+                        v.Add(new Voltage("Vcore", 4, -1, 2));
+                        v.Add(new Voltage("Chipset", 5));
+                        v.Add(new Voltage("CPU System Agent", 6));
+                        //v.Add(new Voltage("Unknown_4", 7)); //"Voltage #2"
+                        v.Add(new Voltage("+3.3V", 8));
+                        v.Add(new Voltage("VREF", 9));
+                        v.Add(new Voltage("+1.8V", 10));
+                        v.Add(new Voltage("+3V Standby", 11));
+                        v.Add(new Voltage("AVSB", 12));
+                        v.Add(new Voltage("CMOS Battery", 13));
+
+                        t.Add(new Temperature("CPU Socket", 4));
+
+                        break;
+
+                    case Model.X870E_CARBON_WIFI:
+                    case Model.X870E_GODLIKE:
+                        v.Add(new Voltage("+12V", 0));
+                        v.Add(new Voltage("+5V", 1));
+                        v.Add(new Voltage("CPU Northbridge/SoC", 2));
+                        v.Add(new Voltage("DIMM", 3, 1, 1));
+                        v.Add(new Voltage("Vcore", 4, -1, 2));
+                        v.Add(new Voltage("Chipset", 5));
+                        v.Add(new Voltage("CPU System Agent", 6));
+                        //v.Add(new Voltage("Unknown_4", 7)); //"Voltage #2"
+                        v.Add(new Voltage("+3.3V", 8));
+                        v.Add(new Voltage("VREF", 9));
+                        v.Add(new Voltage("+1.8V", 10));
+                        v.Add(new Voltage("+3V Standby", 11));
+                        v.Add(new Voltage("AVSB", 12));
+                        v.Add(new Voltage("CMOS Battery", 13));
+                        
+                        t.Add(new Temperature("PCIe x1", 5));
+                        t.Add(new Temperature("M2_1", 6));
+
+                        break;
+
+                    case Model.Z890_CARBON_WIFI:
+                    case Model.Z890_TOMAHAWK_WIFI:
+                    case Model.Z890_ACE:
+                        v.Add(new Voltage("+12V", 0));
+                        v.Add(new Voltage("+5V", 1));
+                        v.Add(new Voltage("Vcore", 2));
+                        v.Add(new Voltage("VIN5", 3));
+                        v.Add(new Voltage("VDIMM", 4));
+                        v.Add(new Voltage("Chipset", 5));
+                        //v.Add(new Voltage("CPU System Agent", 6));
+                        v.Add(new Voltage("VIN7", 7));
+                        v.Add(new Voltage("+3.3V", 8));
+                        v.Add(new Voltage("VTT", 9));
+                        v.Add(new Voltage("+1.8V", 10));
+                        v.Add(new Voltage("+3V Standby", 11));
+                        v.Add(new Voltage("AVSB", 12));
+                        v.Add(new Voltage("CMOS Battery", 13));
+
+                        t.Add(new Temperature("CPU Socket", 4));
+                        t.Add(new Temperature("PCIe x1", 5));
+                        t.Add(new Temperature("M2_1", 6));
+
+                        break;
+
+                    case Model.Z890_EDGE_TI_WIFI:
+                    case Model.Z890P_PRO_WIFI:
+                        v.Add(new Voltage("+12V", 0));
+                        v.Add(new Voltage("+5V", 1));
+                        v.Add(new Voltage("Vcore", 2));
+                        v.Add(new Voltage("VIN5", 3));
+                        v.Add(new Voltage("VDIMM", 4));
+                        v.Add(new Voltage("Chipset", 5));
+                        //v.Add(new Voltage("CPU System Agent", 6));
+                        v.Add(new Voltage("Unknown_3", 7));
+                        v.Add(new Voltage("+3.3V", 8));
+                        v.Add(new Voltage("VTT", 9));
+                        v.Add(new Voltage("+1.8V", 10));
+                        v.Add(new Voltage("+3V Standby", 11));
+                        v.Add(new Voltage("AVSB", 12));
+                        v.Add(new Voltage("CMOS Battery", 13));
+
+                        break;
+
+                    default:
+                        v.Add(new Voltage("+12V", 0));
+                        v.Add(new Voltage("+5V", 1));
+                        v.Add(new Voltage("CPU Northbridge/SoC", 2));
+                        v.Add(new Voltage("DIMM", 3, 1, 1));
+                        v.Add(new Voltage("Vcore", 4, -1, 2));
+                        v.Add(new Voltage("Chipset", 5));
+                        v.Add(new Voltage("CPU System Agent", 6));
+                        //v.Add(new Voltage("Unknown_4", 7)); //"Voltage #2"
+                        v.Add(new Voltage("+3.3V", 8));
+                        v.Add(new Voltage("VREF", 9));
+                        v.Add(new Voltage("+1.8V", 10));
+                        v.Add(new Voltage("+3V Standby", 11));
+                        v.Add(new Voltage("AVSB", 12));
+                        v.Add(new Voltage("CMOS Battery", 13));
+
+                        break;
+
                 }
 
                 break;
@@ -1611,6 +1776,7 @@ internal sealed class SuperIOHardware : Hardware
                     case Model.B650_AORUS_ELITE_V2: // IT8689E
                     case Model.B650_AORUS_ELITE_AX_V2: // IT8689E
                     case Model.B650_AORUS_ELITE_AX_ICE: // IT8689E
+                    case Model.B650_GAMING_X_AX: // IT8689E
                     case Model.B650E_AORUS_ELITE_AX_ICE: // IT8689E
                     case Model.B650M_AORUS_PRO: // IT8689E
                     case Model.B650M_AORUS_PRO_AX:
@@ -1625,7 +1791,7 @@ internal sealed class SuperIOHardware : Hardware
                         v.Add(new Voltage("Dual DDR5 5V", 6, 1.5f, 1));
                         v.Add(new Voltage("+3V Standby", 7, 10f, 10f));
                         v.Add(new Voltage("CMOS Battery", 8, 10f, 10f));
-                        v.Add(new Voltage("AVCC3", 9, 59.9f, 9.8f));
+                        v.Add(new Voltage("AVCC3", 9, 10f, 10f));
                         t.Add(new Temperature("System", 0));
                         t.Add(new Temperature("PCH", 1));
                         t.Add(new Temperature("CPU", 2));
@@ -2017,6 +2183,10 @@ internal sealed class SuperIOHardware : Hardware
                         f.Add(new Fan("System Fan #1", 1));
                         f.Add(new Fan("System Fan #2", 2));
                         f.Add(new Fan("System Fan #3", 3));
+                        f.Add(new Fan("System Fan #4", 4));
+                        c.Add(new Control("CPU Fan", 0));
+                        c.Add(new Control("System Fan #1", 1));
+                        c.Add(new Control("System Fan #2", 2));
 
                         break;
 
@@ -2174,6 +2344,7 @@ internal sealed class SuperIOHardware : Hardware
 
                     case Model.X870E_AORUS_PRO: // ITE IT8696E
                     case Model.X870E_AORUS_PRO_ICE: // ITE IT8696E
+                    case Model.X870E_AORUS_XTREME_AI_TOP: // ITE IT8696E
                         v.Add(new Voltage("Vcore", 0, 0, 1));
                         v.Add(new Voltage("+3.3V", 1, 6.49F, 10));
                         v.Add(new Voltage("+12V", 2, 5, 1));
@@ -2477,6 +2648,7 @@ internal sealed class SuperIOHardware : Hardware
 
                     case Model.X870E_AORUS_PRO:
                     case Model.X870E_AORUS_PRO_ICE: // ITE IT87952E
+                    case Model.X870E_AORUS_XTREME_AI_TOP: // ITE IT87952E
                         v.Add(new Voltage("VIN0", 0));
                         v.Add(new Voltage("Voltage #2", 1, true));
                         v.Add(new Voltage("PM_VCC18", 2));
@@ -3386,7 +3558,7 @@ internal sealed class SuperIOHardware : Hardware
                         f.Add(new Fan("Chassis Fan #1", 3)); // CHA_FAN1/WP
                         f.Add(new Fan("Chassis Fan #2", 4)); // CHA_FAN2/WP
                         f.Add(new Fan("Chassis Fan #3", 6)); // CHA_FAN3/WP
-                        
+
                         c.Add(new Control("CPU Fan #1", 1)); // CPU_FAN1
                         c.Add(new Control("CPU Fan #2", 0)); // CPU_FAN2/WP
                         c.Add(new Control("Chassis Fan #1", 3)); // CHA_FAN1/WP
@@ -4253,7 +4425,7 @@ internal sealed class SuperIOHardware : Hardware
                         v.Add(new Voltage("CMOS Battery", 8, 34, 34));
                         v.Add(new Voltage("CPU Termination", 9));
                         v.Add(new Voltage("CPU VDDIO / MC", 10, 1, 1));
-                        
+
                         t.Add(new Temperature("CPU", 22));
                         t.Add(new Temperature("Motherboard", 2));
                         t.Add(new Temperature("CPU Package", 3));
@@ -4340,6 +4512,36 @@ internal sealed class SuperIOHardware : Hardware
                             c.Add(new Control("Fan #" + (i + 1), i));
 
                         break;
+
+                    case Model.ROG_STRIX_X870E_E_GAMING_WIFI: // NCT6701D
+                        v.Add(new Voltage("Vcore", 0));
+                        v.Add(new Voltage("+5V", 1, 4, 1));
+                        v.Add(new Voltage("AVSB", 2, 34, 34));
+                        v.Add(new Voltage("+3.3V", 3, 34, 34));
+                        v.Add(new Voltage("+12V", 4, 11, 1));
+                        v.Add(new Voltage("Voltage #6", 5, true));
+                        v.Add(new Voltage("Voltage #7", 6, true));
+                        v.Add(new Voltage("+3V Standby", 7, 34, 34));
+                        v.Add(new Voltage("CMOS Battery", 8, 34, 34));
+                        v.Add(new Voltage("CPU Termination", 9, true)); // Value does not match any in hwmonnitor
+                        v.Add(new Voltage("CPU VDDIO / MC", 10, 1, 1));
+
+                        t.Add(new Temperature("Motherboard", 2));
+                        t.Add(new Temperature("CPU", 22));
+
+                        fanControlNames = new[] { "Chassis Fan #1", "CPU Fan", "Chassis Fan #2", "Chassis Fan #3", "Chassis Fan #4", "Chassis Fan #5", "AIO Pump" };
+
+                        System.Diagnostics.Debug.Assert(fanControlNames.Length == superIO.Fans.Length, $"Expected {fanControlNames.Length} fan register in the SuperIO chip");
+                        System.Diagnostics.Debug.Assert(superIO.Fans.Length == superIO.Controls.Length, "Expected counts of cans controls and fan speed registers to be equal");
+
+                        for (int i = 0; i < fanControlNames.Length; i++)
+                            f.Add(new Fan(fanControlNames[i], i));
+
+                        for (int i = 0; i < fanControlNames.Length; i++)
+                            c.Add(new Control(fanControlNames[i], i));
+
+                        break;
+
                     case Model.PROART_X670E_CREATOR_WIFI: // NCT6799D
                         v.Add(new Voltage("Vcore", 0)); // This is wrong
                         v.Add(new Voltage("+5V", 1, 4, 1));
@@ -4353,6 +4555,97 @@ internal sealed class SuperIOHardware : Hardware
                         t.Add(new Temperature("Motherboard", 2));
                         t.Add(new Temperature("T_Sensor", 24)); // Aligned with Armoury Crate
                         t.Add(new Temperature("Temperature #1", 1)); // Unknown, Possibly VRM with 23 offset
+
+                        for (int i = 0; i < superIO.Fans.Length; i++)
+                            f.Add(new Fan("Fan #" + (i + 1), i));
+
+                        for (int i = 0; i < superIO.Controls.Length; i++)
+                            c.Add(new Control("Fan #" + (i + 1), i));
+
+                        break;
+                        
+                    case Model.PRIME_X870_P: // NCT6701D
+                        v.Add(new Voltage("Vcore", 0));
+                        v.Add(new Voltage("+5V", 1, 4, 1));
+                        v.Add(new Voltage("AVSB", 2, 34, 34));
+                        v.Add(new Voltage("+3.3V", 3, 34, 34));
+                        v.Add(new Voltage("+12V", 4, 11, 1));
+                        v.Add(new Voltage("Voltage #6", 5, true));
+                        v.Add(new Voltage("Voltage #7", 6, true));
+                        v.Add(new Voltage("+3V Standby", 7, 34, 34));
+                        v.Add(new Voltage("CMOS Battery", 8, 34, 34));
+                        v.Add(new Voltage("CPU Termination", 9, 34, 34));
+                        v.Add(new Voltage("CPU VDDIO / MC", 10, 1, 1));
+                        v.Add(new Voltage("Voltage #12", 11, true));
+                        v.Add(new Voltage("+1.8V Standby", 12, true)); // Uknown values needed for tuning, hidden for now
+                        v.Add(new Voltage("Voltage #14", 13, true));
+                        v.Add(new Voltage("Voltage #15", 14, true));
+                        v.Add(new Voltage("Voltage #16", 15, true));
+                        // All voltage channels above 15 cannot be added?
+
+                        t.Add(new Temperature("Motherboard", 2));
+                        t.Add(new Temperature("VRM", 7));
+                        t.Add(new Temperature("CPU", 22));
+
+                        fanControlNames = new[] { "Chassis Fan #1", "CPU Fan", "Chassis Fan #2", "Chassis Fan #3", "CPU_OPT", "Chassis Fan #4", "AIO Pump" };
+
+                        for (int i = 0; i < fanControlNames.Length; i++)
+                            f.Add(new Fan(fanControlNames[i], i));
+
+                        for (int i = 0; i < fanControlNames.Length; i++)
+                            c.Add(new Control(fanControlNames[i], i));
+
+                        break;
+
+                    case Model.ROG_CROSSHAIR_X870E_HERO: // NCT6701D
+                        v.Add(new Voltage("Vcore", 0));
+                        v.Add(new Voltage("+5V", 1, 4, 1));
+                        v.Add(new Voltage("AVSB", 2, 34, 34));
+                        v.Add(new Voltage("+3.3V", 3, 34, 34));
+                        v.Add(new Voltage("+12V", 4, 11, 1));
+                        v.Add(new Voltage("Voltage #6", 5, true));
+                        v.Add(new Voltage("Voltage #7", 6, true));
+                        v.Add(new Voltage("+3V Standby", 7, 34, 34));
+                        v.Add(new Voltage("CMOS Battery", 8, 34, 34));
+                        v.Add(new Voltage("CPU Termination", 9, true)); // Value does not match any in hwmonitor
+                        v.Add(new Voltage("CPU VDDIO / MC", 10, 1, 1));
+
+                        t.Add(new Temperature("CPU Package", 0));
+                        t.Add(new Temperature("Motherboard", 2));
+                        t.Add(new Temperature("CPU", 22));
+
+                        fanControlNames = new[] { "Chassis Fan #1", "CPU Fan", "Chassis Fan #2", "Chassis Fan #3", "Chassis Fan #4", "Water Pump", "AIO Pump" };
+
+                        System.Diagnostics.Debug.Assert(fanControlNames.Length == superIO.Fans.Length, $"Expected {fanControlNames.Length} fan register in the SuperIO chip");
+                        System.Diagnostics.Debug.Assert(superIO.Fans.Length == superIO.Controls.Length, "Expected counts of fan controls and fan speed registers to be equal");
+
+                        for (int i = 0; i < fanControlNames.Length; i++)
+                            f.Add(new Fan(fanControlNames[i], i));
+
+                        for (int i = 0; i < fanControlNames.Length; i++)
+                            c.Add(new Control(fanControlNames[i], i));
+
+                        break;
+
+                    case Model.PROART_X870E_CREATOR_WIFI: // NCT6701D
+                        v.Add(new Voltage("Vcore", 0));
+                        v.Add(new Voltage("Voltage #2", 1, true));
+                        v.Add(new Voltage("AVCC", 2, 34, 34));
+                        v.Add(new Voltage("+3.3V", 3, 34, 34));
+                        v.Add(new Voltage("Voltage #5", 4, true));
+                        v.Add(new Voltage("Voltage #6", 5, true));
+                        v.Add(new Voltage("Voltage #7", 6, true));
+                        v.Add(new Voltage("+3V Standby", 7, 34, 34));
+                        v.Add(new Voltage("CMOS Battery", 8, 34, 34));
+                        v.Add(new Voltage("CPU Termination", 9));
+                        v.Add(new Voltage("Voltage #11", 10, true));
+                        v.Add(new Voltage("Voltage #12", 11, true));
+                        v.Add(new Voltage("Voltage #13", 12, true));
+                        v.Add(new Voltage("Voltage #14", 13, true));
+                        v.Add(new Voltage("Voltage #15", 14, true));
+
+                        t.Add(new Temperature("Motherboard", 2));
+                        t.Add(new Temperature("CPU", 22));
 
                         for (int i = 0; i < superIO.Fans.Length; i++)
                             f.Add(new Fan("Fan #" + (i + 1), i));
@@ -4505,7 +4798,7 @@ internal sealed class SuperIOHardware : Hardware
                         v.Add(new Voltage("+5V", 1, 4, 1));
                         v.Add(new Voltage("AVCC", 2, 34, 34));
                         v.Add(new Voltage("+3.3V", 3, 34, 34));
-                        v.Add(new Voltage("+12V", 4,  11, 1));
+                        v.Add(new Voltage("+12V", 4, 11, 1));
                         //v.Add(new Voltage("Voltage #6", 5));
                         v.Add(new Voltage("VIN4", 6, false));
                         v.Add(new Voltage("+3V Standby", 7, 34, 34));
